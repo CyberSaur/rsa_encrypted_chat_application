@@ -43,7 +43,8 @@ public class Server extends JFrame{
                     sendMessage(event.getActionCommand());
                     userText.setText("");
                    }catch (Exception ex){
-                        System.out.print("The message can't be sent");
+                       JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
+                       System.out.print("The message can't be sent");
                    }
             }
 	});
@@ -158,24 +159,38 @@ public class Server extends JFrame{
            }
     }
 	
+    //input validation
+    public boolean inputValidation(String m){
+        String pattern= "^[a-zA-Z0-9\\t\\n ./<>?;:\"'`!@#$%^&*()\\[\\]{}_+=|\\\\-]+$";
+        return m.matches(pattern);
+    }
+    
     //send a message to client
     private void sendMessage(String message) throws Exception{
-        try{    
-            // First generate a public/private key pair
-            KeyPair pair = rsa.generateKeyPair();
-            // KeyPair pair = getKeyPairFromKeyStore();
-            // Encrypt the message
-            System.out.println("SERVER - " + message);
-            String cipherText = rsa.encrypt("SERVER - " + message, pair.getPrivate());
-            System.out.println(cipherText);
-            output.writeObject(cipherText);
-            output.flush();
-            sendKey(pair.getPublic());
-            showMessage("\nSERVER - " + message);
-            // Let's sign our message
-            String signature = rsa.sign("foobar", pair.getPrivate());
-            sendSign(signature);
+        try{
+            if(inputValidation(message) == true)
+            {
+                // First generate a public/private key pair
+                KeyPair pair = rsa.generateKeyPair();
+                // KeyPair pair = getKeyPairFromKeyStore();
+                // Encrypt the message
+                System.out.println("SERVER - " + message);
+                String cipherText = rsa.encrypt("SERVER - " + message, pair.getPrivate());
+                System.out.println(cipherText);
+                output.writeObject(cipherText);
+                output.flush();
+                sendKey(pair.getPublic());
+                showMessage("\nSERVER - " + message);
+                // Let's sign our message
+                String signature = rsa.sign("foobar", pair.getPrivate());
+                sendSign(signature);
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
+            }
            }catch(IOException ioException){
+                JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
                 chatWindow.append("\n The message can't be sent ");
            }
     }
@@ -186,6 +201,7 @@ public class Server extends JFrame{
             keyOutput.writeObject(publicKey);
             keyOutput.flush();
            }catch(IOException ioException){
+                JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
                 chatWindow.append("\n The message can't be sent ");
            }
     }
@@ -196,6 +212,7 @@ public class Server extends JFrame{
             signOutput.writeObject(signature);
             signOutput.flush();
            }catch(IOException ioException){
+                JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
                 chatWindow.append("\n The message can't be verified ");
            }
     }
