@@ -19,6 +19,7 @@ import javax.swing.*;
  * @author Suneth
  */
 public class Server extends JFrame{
+    
     private JTextField userText;
     private JTextArea chatWindow;
     private ObjectOutputStream output;
@@ -34,29 +35,35 @@ public class Server extends JFrame{
     //constructor
     public Server(){
         super("WhatsChat Instant Messenger");
-	userText = new JTextField();
-	userText.setEditable(false);
-	userText.addActionListener(
-	new ActionListener(){
-            public void actionPerformed(ActionEvent event){
-                try{
-                    sendMessage(event.getActionCommand());
-                    userText.setText("");
-                   }catch (Exception ex){
-                       JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
-                       System.out.print("The message can't be sent");
-                   }
-            }
-	});
-	add(userText, BorderLayout.NORTH);
-	chatWindow = new JTextArea();
-	add(new JScrollPane(chatWindow));
-	setSize(300,150);
-	setVisible(true);
+        try{
+            userText = new JTextField();
+            userText.setEditable(false);
+            userText.addActionListener(
+            new ActionListener(){
+                public void actionPerformed(ActionEvent event){
+                    try {
+                        sendMessage(event.getActionCommand());
+                        userText.setText("");
+                    }catch (Exception ex){
+                        JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
+                        System.out.print("The message can't be sent");
+                    }
+                }
+            });
+            add(userText, BorderLayout.NORTH);
+            chatWindow = new JTextArea();
+            add(new JScrollPane(chatWindow));
+            setSize(300,150);
+            setVisible(true);
+        }catch(Exception ex)
+        {
+            JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
+            System.out.print("Error occured");
+        }
     }
 	
     //set up and run the server
-    public void startRunning() throws Exception{
+    public void startRunning(){
         try{
             server = new ServerSocket(6789, 100);
             while(true){
@@ -66,37 +73,53 @@ public class Server extends JFrame{
                             setupKeyStreams();
                             setupSignStreams();
                             whileChatting();
-                           }catch(EOFException eofException){
+                           }catch(Exception ex){
                                 showMessage("\n Server ended the connection! ");
                            }finally{
 				closeCrap();
                            }
                        }
-           }catch(IOException ioException){
-                ioException.printStackTrace();
+           }catch(Exception ex){
+                JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
+                System.out.print("Error occured");
            }
     }
 	
     //wait for connection, then display connection information
-    private void waitForConnection() throws IOException{
-        showMessage(" Waiting for someone to connect... \n");
-        connection = server.accept();
-	showMessage(" Now connected to " + connection.getInetAddress().getHostName());
+    private void waitForConnection(){
+        try{
+            showMessage(" Waiting for someone to connect... \n");
+            connection = server.accept();
+            showMessage(" Now connected to " + connection.getInetAddress().getHostName());
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
+            System.out.print("Error occured");
+        }
     }
 	
     //set stream to send and receive data
-    private void setupStreams() throws IOException{
-	output = new ObjectOutputStream(connection.getOutputStream());
-	output.flush();
-	input = new ObjectInputStream(connection.getInputStream());
-	showMessage("\n Streams are now setup! \n");
+    private void setupStreams(){
+        try{
+            output = new ObjectOutputStream(connection.getOutputStream());
+            output.flush();
+            input = new ObjectInputStream(connection.getInputStream());
+            showMessage("\n Streams are now setup! \n");
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
+            System.out.print("Error occured");
+        }
     }
 	
     //set stream to send and receive keys
-    private void setupKeyStreams() throws IOException{
-        keyOutput = new ObjectOutputStream(connection.getOutputStream());
-	keyOutput.flush();
-	keyInput = new ObjectInputStream(connection.getInputStream());
+    private void setupKeyStreams(){
+        try{
+            keyOutput = new ObjectOutputStream(connection.getOutputStream());
+            keyOutput.flush();
+            keyInput = new ObjectInputStream(connection.getInputStream());
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
+            System.out.print("Error occured");
+        }
     }
         
     //receive the public key
@@ -106,10 +129,15 @@ public class Server extends JFrame{
     }
         
     //set stream to send and receive signatures
-    private void setupSignStreams() throws IOException{
-        signOutput = new ObjectOutputStream(connection.getOutputStream());
-	signOutput.flush();
-	signInput = new ObjectInputStream(connection.getInputStream());
+    private void setupSignStreams(){
+        try{
+            signOutput = new ObjectOutputStream(connection.getOutputStream());
+            signOutput.flush();
+            signInput = new ObjectInputStream(connection.getInputStream());
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
+            System.out.print("Error occured");
+        }
     }
         
     //receive the signature
@@ -119,54 +147,65 @@ public class Server extends JFrame{
     }
         
     //during the chat conversation
-    private void whileChatting() throws Exception{
-	String message = " You are now connected! ";
-	sendMessage(message);
-	ableToType(true);
-	do{
-            try{
-                String cipherText = (String)input.readObject();
-                System.out.println(cipherText);
-                PublicKey publicKey = receiveKey();
-                // Now decrypt it
-		String decipheredMessage = rsa.decrypt(cipherText, publicKey);
-                System.out.println(decipheredMessage);
-                showMessage("\n" + decipheredMessage);
-                String signature = receiveSign();
-                // Let's check the signature
-		boolean isCorrect = rsa.verify("foobar", signature, publicKey);
-		System.out.println("Signature correct: " + isCorrect); 
-               }catch(ClassNotFoundException classNotFoundException){
-                    showMessage("\n Unknown object type ");
-               }
-            }while(!message.equals("CLIENT - END"));
+    private void whileChatting(){
+        try{
+            String message = " You are now connected! ";
+            sendMessage(message);
+            ableToType(true);
+            do{
+                try{
+                    String cipherText = (String)input.readObject();
+                    System.out.println(cipherText);
+                    PublicKey publicKey = receiveKey();
+                    // Now decrypt it
+                    String decipheredMessage = rsa.decrypt(cipherText, publicKey);
+                    System.out.println(decipheredMessage);
+                    showMessage("\n" + decipheredMessage);
+                    String signature = receiveSign();
+                    // Let's check the signature
+                    boolean isCorrect = rsa.verify("foobar", signature, publicKey);
+                    System.out.println("Signature correct: " + isCorrect); 
+                   }catch(ClassNotFoundException classNotFoundException){
+                        JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
+                        showMessage("\n Unknown object type ");
+                   }
+                }while(!message.equals("CLIENT - END"));
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
+            System.out.print("Error occured");
+        }
     }
 	
     //close streams and sockets after you are done chatting
     private void closeCrap(){
-        showMessage("\n Closing connections... \n");
-        ableToType(false);
         try{
-            output.close();
-            keyOutput.close();
-            signOutput.close();
-            input.close();
-            keyInput.close();
-            signInput.close();
-            connection.close();
-           }catch(IOException ioException){
-                ioException.printStackTrace();
-           }
+            showMessage("\n Closing connections... \n");
+            ableToType(false);
+            try{
+                output.close();
+                keyOutput.close();
+                signOutput.close();
+                input.close();
+                keyInput.close();
+                signInput.close();
+                connection.close();
+               }catch(IOException ioException){
+                    System.out.print("Error occured");
+               }
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
+            System.out.print("Error occured");
+        }
     }
 	
     //input validation
-    public boolean inputValidation(String m){
+    public boolean inputValidation(String m) throws Exception{
         String pattern= "^[a-zA-Z0-9\\t\\n ./<>?;:\"'`!@#$%^&*()\\[\\]{}_+=|\\\\-]+$";
         return m.matches(pattern);
     }
     
     //send a message to client
-    private void sendMessage(String message) throws Exception{
+    private void sendMessage(String message){
         try{
             if(inputValidation(message) == true)
             {
@@ -189,10 +228,10 @@ public class Server extends JFrame{
             {
                 JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
             }
-           }catch(IOException ioException){
-                JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
-                chatWindow.append("\n The message can't be sent ");
-           }
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
+            chatWindow.append("\n The message can't be sent ");
+        }
     }
         
     //send the public key
@@ -200,10 +239,10 @@ public class Server extends JFrame{
         try{    
             keyOutput.writeObject(publicKey);
             keyOutput.flush();
-           }catch(IOException ioException){
-                JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
-                chatWindow.append("\n The message can't be sent ");
-           }
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
+            chatWindow.append("\n The message can't be sent ");
+        }
     }
         
     //send the signature
@@ -211,29 +250,39 @@ public class Server extends JFrame{
         try{    
             signOutput.writeObject(signature);
             signOutput.flush();
-           }catch(IOException ioException){
-                JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
-                chatWindow.append("\n The message can't be verified ");
-           }
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
+            chatWindow.append("\n The message can't be verified ");
+        }
     }
         
     //updates chat window
     private void showMessage(final String text){
+        try{
         SwingUtilities.invokeLater(
             new Runnable(){
                 public void run(){
                     chatWindow.append(text);
 		}
             });
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
+            System.out.print("Error occured");
+        }
     }
 	
     //gives user permission to type message into the text box
     private void ableToType(final boolean tof){
+        try{
         SwingUtilities.invokeLater(
             new Runnable(){
                 public void run(){
                     userText.setEditable(tof);
 		}
             });
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
+            System.out.print("Error occured");
+        }
     }
 }

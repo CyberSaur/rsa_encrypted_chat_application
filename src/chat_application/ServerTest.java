@@ -5,16 +5,21 @@
  */
 package chat_application;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 /**
  *
  * @author Suneth
  */
 public class ServerTest{
     
-    public static void main(String[] args) throws Exception{
-	Server sally = new Server();
-	sally.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	sally.startRunning();
-    }
-    
+    public static void main(String[] args){
+        try{
+            Server sally = new Server();
+            sally.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            sally.startRunning();
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
+            System.out.print("Error occured");
+        }
+    }    
 }
