@@ -21,7 +21,8 @@ import javax.crypto.Cipher;
  * @author Suneth
  */
 public class RSAencryption{
-    
+
+    //method to generate key pair
     public static KeyPair generateKeyPair() throws Exception{
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048, new SecureRandom());
@@ -29,6 +30,7 @@ public class RSAencryption{
         return pair;
     }
 
+    //method to get key pair from key store
     public static KeyPair getKeyPairFromKeyStore() throws Exception{
 	// Generated with:
 	// keytool -genkeypair -alias mykey -storepass s3cr3t -keypass s3cr3t -keyalg
@@ -45,6 +47,7 @@ public class RSAencryption{
 	return new KeyPair(publicKey, privateKey);
     }
 
+    //encryption method
     public static String encrypt(String plainText, PrivateKey privateKey) throws Exception{
 	Cipher encryptCipher = Cipher.getInstance("RSA");
 	encryptCipher.init(Cipher.ENCRYPT_MODE, privateKey);
@@ -52,6 +55,7 @@ public class RSAencryption{
 	return Base64.getEncoder().encodeToString(cipherText);
     }
 
+    //decryption method
     public static String decrypt(String cipherText, PublicKey publicKey) throws Exception{
 	byte[] bytes = Base64.getDecoder().decode(cipherText);
 	Cipher decriptCipher = Cipher.getInstance("RSA");
@@ -59,6 +63,7 @@ public class RSAencryption{
 	return new String(decriptCipher.doFinal(bytes), UTF_8);
     }
 
+    //method to provide signature
     public static String sign(String plainText, PrivateKey privateKey) throws Exception{
         Signature privateSignature = Signature.getInstance("SHA256withRSA");
 	privateSignature.initSign(privateKey);
@@ -67,6 +72,7 @@ public class RSAencryption{
 	return Base64.getEncoder().encodeToString(signature);
     }
 
+    //verification method
     public static boolean verify(String plainText, String signature, PublicKey publicKey) throws Exception{
 	Signature publicSignature = Signature.getInstance("SHA256withRSA");
 	publicSignature.initVerify(publicKey);

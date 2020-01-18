@@ -45,8 +45,8 @@ public class Server extends JFrame{
                         sendMessage(event.getActionCommand());
                         userText.setText("");
                     }catch (Exception ex){
-                        JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
-                        System.out.print("The message can't be sent");
+                        JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
+                        System.out.print("Error occured: " + ex.getMessage());
                     }
                 }
             });
@@ -55,10 +55,9 @@ public class Server extends JFrame{
             add(new JScrollPane(chatWindow));
             setSize(300,150);
             setVisible(true);
-        }catch(Exception ex)
-        {
+        }catch(Exception ex){
             JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
-            System.out.print("Error occured");
+            System.out.print("Error occured: " + ex.getMessage());
         }
     }
 	
@@ -81,7 +80,7 @@ public class Server extends JFrame{
                        }
            }catch(Exception ex){
                 JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
-                System.out.print("Error occured");
+                System.out.print("Error occured: " + ex.getMessage());
            }
     }
 	
@@ -93,7 +92,7 @@ public class Server extends JFrame{
             showMessage(" Now connected to " + connection.getInetAddress().getHostName());
         }catch(Exception ex){
             JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
-            System.out.print("Error occured");
+            System.out.print("Error occured: " + ex.getMessage());
         }
     }
 	
@@ -106,7 +105,7 @@ public class Server extends JFrame{
             showMessage("\n Streams are now setup! \n");
         }catch(Exception ex){
             JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
-            System.out.print("Error occured");
+            System.out.print("Error occured: " + ex.getMessage());
         }
     }
 	
@@ -117,8 +116,8 @@ public class Server extends JFrame{
             keyOutput.flush();
             keyInput = new ObjectInputStream(connection.getInputStream());
         }catch(Exception ex){
-            JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
-            System.out.print("Error occured");
+            JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
+            System.out.print("Error occured: " + ex.getMessage());
         }
     }
         
@@ -135,8 +134,8 @@ public class Server extends JFrame{
             signOutput.flush();
             signInput = new ObjectInputStream(connection.getInputStream());
         }catch(Exception ex){
-            JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
-            System.out.print("Error occured");
+            JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
+            System.out.print("Error occured: " + ex.getMessage());
         }
     }
         
@@ -165,14 +164,13 @@ public class Server extends JFrame{
                     // Let's check the signature
                     boolean isCorrect = rsa.verify("foobar", signature, publicKey);
                     System.out.println("Signature correct: " + isCorrect); 
-                   }catch(ClassNotFoundException classNotFoundException){
-                        JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
-                        showMessage("\n Unknown object type ");
+                   }catch(ClassNotFoundException ex){
+                        JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
+                        System.out.print("Error occured: " + ex.getMessage());
                    }
                 }while(!message.equals("CLIENT - END"));
         }catch(Exception ex){
-            JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
-            System.out.print("Error occured");
+            System.out.print("Error occured: " + ex.getMessage());
         }
     }
 	
@@ -189,18 +187,19 @@ public class Server extends JFrame{
                 keyInput.close();
                 signInput.close();
                 connection.close();
-               }catch(IOException ioException){
-                    System.out.print("Error occured");
+               }catch(IOException ex){
+                    JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
+                    System.out.print("Error occured: " + ex.getMessage());
                }
         }catch(Exception ex){
             JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
-            System.out.print("Error occured");
+            System.out.print("Error occured: " + ex.getMessage());
         }
     }
 	
     //input validation
     public boolean inputValidation(String m) throws Exception{
-        String pattern= "^[a-zA-Z0-9\\t\\n ./<>?;:\"'`!@#$%^&*()\\[\\]{}_+=|\\\\-]+$";
+        String pattern= "^[a-zA-Z0-9\\t\\n ,./<>?;:\"'`!@#$%^&*()\\[\\]{}_+=|\\\\-]+$";
         return m.matches(pattern);
     }
     
@@ -230,7 +229,7 @@ public class Server extends JFrame{
             }
         }catch(Exception ex){
             JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
-            chatWindow.append("\n The message can't be sent ");
+            System.out.print("Error occured: " + ex.getMessage());
         }
     }
         
@@ -241,7 +240,7 @@ public class Server extends JFrame{
             keyOutput.flush();
         }catch(Exception ex){
             JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
-            chatWindow.append("\n The message can't be sent ");
+            System.out.print("Error occured: " + ex.getMessage());
         }
     }
         
@@ -252,37 +251,37 @@ public class Server extends JFrame{
             signOutput.flush();
         }catch(Exception ex){
             JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
-            chatWindow.append("\n The message can't be verified ");
+            System.out.print("Error occured: " + ex.getMessage());
         }
     }
         
     //updates chat window
     private void showMessage(final String text){
         try{
-        SwingUtilities.invokeLater(
-            new Runnable(){
-                public void run(){
-                    chatWindow.append(text);
-		}
-            });
+            SwingUtilities.invokeLater(
+                new Runnable(){
+                    public void run(){
+                        chatWindow.append(text);
+                    }
+                });
         }catch(Exception ex){
-            JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
-            System.out.print("Error occured");
+            JOptionPane.showMessageDialog(null,"Unable to send the message","Error",JOptionPane.ERROR_MESSAGE);
+            System.out.print("Error occured: " + ex.getMessage());
         }
     }
 	
     //gives user permission to type message into the text box
     private void ableToType(final boolean tof){
         try{
-        SwingUtilities.invokeLater(
-            new Runnable(){
-                public void run(){
-                    userText.setEditable(tof);
-		}
-            });
+            SwingUtilities.invokeLater(
+                new Runnable(){
+                    public void run(){
+                        userText.setEditable(tof);
+                    }
+                });
         }catch(Exception ex){
             JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
-            System.out.print("Error occured");
+            System.out.print("Error occured: " + ex.getMessage());
         }
     }
 }

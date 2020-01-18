@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package chat_application;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 /**
@@ -19,7 +20,7 @@ public class ServerTest{
             sally.startRunning();
         }catch(Exception ex){
             JOptionPane.showMessageDialog(null,"Error occured","Error",JOptionPane.ERROR_MESSAGE);
-            System.out.print("Error occured");
+            System.out.print("Error occured: " + ex.getMessage());
         }
     }    
 }
